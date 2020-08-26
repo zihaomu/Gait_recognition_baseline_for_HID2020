@@ -1,0 +1,60 @@
+# conf is the parameter in whole experiments
+# this also the first part of this project. 
+# all options are listed in the following.
+
+# base parameters
+WORK_PATH: "ROOT_PATH"   # the root path of this project
+CUDA_VISIBLE_DEVICES: "4,5"
+writer : None
+writer_name : 'config/HID2020'
+# dataset
+
+data:
+    dir: "DATASET_PATH/train"
+    cache: True   # whether to use a caching strategy, the cache strategy can speed up the data initialization process.
+    cache_path: "DATASET_PATH/temp_save"  # where do you want to cache this temporal files?
+    pid_num: 500 # How many subjects do you want to use in training process?
+    pid_shuffle: True
+    resolution: 64
+    frame_num: 32  # The length of a sample sequence.
+    num_workers: 4
+    drop_last: False
+    collate_fn: 'clip'
+    sampler: 'weight'
+
+model:
+    name: 'SilhouetteNormal'  # options: SilhouetteNormal, SilhouetteDeep
+
+train:
+    restore_iter: 0  # checkpoint
+    num_epochs: 5000
+    center_wight: 0.5  # the weight of center loss
+    num_grad_acc: 5
+    save_step: 20    # checkpoint save step
+    batch_size:
+        batch1: 64
+        batch2: 4
+
+test:
+    epoch: 249
+    gallery_dir: "DATASET_PATH/test_gallery"
+    probe_dir: "DATASET_PATH/test_probe"
+    SampleSubmission_dir: "DATASET_PATH/SampleSubmission/submission.csv"
+    evaluator: 'l2'
+    sampler: 'video'        # options: seq -> batch clip as input, video -> The entire sequence as input
+    vote: False
+    result_save : True
+
+optimizer:
+    name: 'adam'  # options: "adam" and "sgd", "adamw"
+    params:
+        lr: 0.001
+
+scheduler:
+    name: 'step' # step, multistep, exponential, none
+
+loss:
+    name: 'cross_entropy' # cross_entropy, softmax_center  # softmax_center = cross_entropy + center loss
+    params:
+        gamma: 0.0008
+
