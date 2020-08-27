@@ -120,7 +120,7 @@ def load_data(config, dataset_path, resolution, dataset, pid_num, cache, pid_shu
             # check if there is image?
 
             if len(os.listdir(seqs_path)) == 0:
-                print("no image in ", seqs_path)
+                # print("no image in ", seqs_path)
                 continue
             seq_dir.append([seqs_path])
             int_label = int(_label)
@@ -161,7 +161,7 @@ def load_probe_data(config, dataset_path, pid_shuffle=False):
         # check if there is image?
 
         if len(os.listdir(seqs_path)) == 0:
-            print("no image in ", seqs_path)
+            # print("no image in ", seqs_path)
             continue
         seq_dir.append([seqs_path])
         int_label = int(0)
@@ -188,7 +188,7 @@ def load_gallery_data(config, dataset_path, pid_shuffle=False):
             # check if there is image?
 
             if len(os.listdir(seqs_path)) == 0:
-                print("no image in ", seqs_path)
+                # print("no image in ", seqs_path)
                 continue
             seq_dir.append([seqs_path])
             int_label = int(_label)
@@ -240,34 +240,6 @@ def get_initial(config, train=False):
     print("Data initialization complete.")
     return train_source, val_source, train_list
 
-def load_data_test(config, dataset_path, dataset, pid_num, pid_shuffle=False):
-    dataset_path = "/home/mzh/dataset/gait_kaggle/test/dataset"
-    seq_dir = list()
-    vID = list()
-    label = list()
-
-    for _label in sorted(list(os.listdir(dataset_path))):
-        label_path = osp.join(dataset_path, _label)
-        for seqs in sorted(list(os.listdir(label_path))):
-            seqs_path = osp.join(label_path, seqs)
-
-            if len(os.listdir(seqs_path)) == 0:
-                print("no image in ", seqs_path)
-                continue
-
-            seq_dir.append([seqs_path])
-            int_label = int(_label)
-            label.append(int_label)
-            vID.append(seqs)
-
-    pid_list = sorted(list(set(label)))
-
-    pid_list_test = int_list(pid_list)
-
-    get_gallery = globals().get("get_gallery_"+config.test.gallery_model)
-    test_source, test_gallery = get_gallery(pid_list_test, seq_dir, vID, label, config)
-    return test_source, test_gallery
-
 
 def get_gallery_data(test_dataset, test_gallery):
     seq_dir_gallery, vID_gallery, label_gallery = test_gallery[0], test_gallery[1], test_gallery[2]
@@ -303,56 +275,3 @@ def get_initial_test(config, train= False, test= True ):
     #
     print("len probe set = ", len(test_probe_source), ", len gallery set = ", len(test_gallery[2]))
     return test_probe_source,  test_gallery
-
-
-def find_list_from_path(dataset_path, appendix):
-    seq_dir = list()
-    date = list()
-    label = list()
-
-    for _label in sorted(list(os.listdir(dataset_path))):
-        label_path = osp.join(dataset_path, _label)
-        for seqs in sorted(list(os.listdir(label_path))):
-            if appendix is not None:
-                seqs_path = osp.join(label_path, seqs, appendix)
-            else:
-                seqs_path = osp.join(label_path, seqs)
-            seq_dir.append([seqs_path])
-            int_label = int(_label)
-            label.append(int_label)
-            date.append(seqs)
-
-    return seq_dir, date, label
-
-
-def get_gallery_data_loader(config, train= False, test= True):
-    test_source, test_gallery = load_data_test(config, config.data.dir, config.data.name, config.data.pid_num, config.data.appendix)
-    print("Loading finte tuning data...")
-    test_gallery_dataset = get_dataset(*test_gallery, config)  # use gallery dataset instant to present gallery
-    test_gallery_dataset.load_all_data()
-
-    return test_gallery_dataset
-
-
-def get_initial_test_save(config, train= False, test= True ):
-    print("Initialzing test dataset...")
-    test_source, test_gallery = load_data_test(config, config.data.dir, config.data.name, config.data.pid_num, config.data.appendix)
-    print("Loading testing data...")
-
-    data_path = os.path.join(config.data.cache_path, config.data.name + "_" + "test.npy")
-
-    if os.path.exists(data_path):  # if the pickle file exists, dirctly load data
-        print("Loading training data from pickle")
-        test_source = load_all_data_frome_pickle(data_path)
-
-    else:
-        print("Loading test data from raw...")
-        test_source.load_all_data()
-        save_data_to_pickle(test_source, data_path)
-
-    test_gallery = get_gallery_data(test_source, test_gallery)
-
-    return test_source, test_gallery
-
-
-
