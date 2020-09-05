@@ -117,10 +117,9 @@ def load_data(config, dataset_path, resolution, dataset, pid_num, cache, pid_shu
         for seqs in sorted(list(os.listdir(label_path))):
             seqs_path = osp.join(label_path, seqs)
 
-            # check if there is image?
-
+            # skip the empty file
             if len(os.listdir(seqs_path)) == 0:
-                # print("no image in ", seqs_path)
+                print("empty file:", seqs_path)
                 continue
             seq_dir.append([seqs_path])
             int_label = int(_label)
@@ -158,10 +157,9 @@ def load_probe_data(config, dataset_path, pid_shuffle=False):
     for seqs in sorted(list(os.listdir(dataset_path))):
         seqs_path = osp.join(dataset_path, seqs)
 
-        # check if there is image?
-
+        # skip the empty file
         if len(os.listdir(seqs_path)) == 0:
-            # print("no image in ", seqs_path)
+            print("empty file:", seqs_path)
             continue
         seq_dir.append([seqs_path])
         int_label = int(0)
